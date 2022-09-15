@@ -15,38 +15,52 @@ function randomNumber(){
     return Math.floor(Math.random() * 10000)
 }
 
-App.post('/signup',(res , req)=>{
+App.post('/signup',(req , res)=>{
   
     let body = req.body ;
 
-    if(!body.firstName 
+    if(!body.FirstName 
         || !body.LastName 
-        ||  !body.email 
-        ||    !body.password
+        || !body.email 
+        || !body.password
         ){
-             req.status(400).send(`
-             require missing field please requst example :
+             res.status(400).send(
+                `require missing field please requst example :
              {
-                firstName : "jon" ,
+                FirstName : "jon" ,
                 LastName :  "Sing",
                 email :  "jonsin@gmail.com",
-                password : "12345"
-            
-                
+                password : "12345"  
              }
              `)
              return ;
         }
+          /// email  phala rigster hai
+let isFound = false;
+for(let i = 0; i<UserBae.length; i++){
+    if(UserBae[i].email === body.email.toLowerCase()){
+        isFound = true;
+        break; 
+    }
+}
+if(isFound){   //this email already exist
+    res.status(400).send({
+        message: `email ${body.email} already exist `
+    })
+    return; 
+}
+
         let NewUser  = {
             userId : nanoid(),
-            firstName : req.firstName,
-            LastName : req.LastName,
-            email : req.email,
-            password : req.password
+            FirstName : body.FirstName,
+            LastName : body.LastName,
+            email : body.email.toLowerCase(),
+            password : body.password
         }    
         UserBae.push(NewUser )
-        res.status(201).send("user is created ")
+        res.status(201).send({message :"user is created "})
 })
+
 
 App.post('/Login', (res, req)=>{
     
@@ -57,7 +71,7 @@ App.post('/Login', (res, req)=>{
              req.status(400).send(`
              require missing field please requst example :
              {
-                
+                 
                 email :  "jonsin@gmail.com",
                 password : "12345"
             
@@ -74,7 +88,7 @@ App.post('/Login', (res, req)=>{
                  isFound = true
                 if(UserBae[i].password === body.password){    // correct password 
                     res.status(200).send({
-                        firstName: UserBae[i].firstName,
+                        FirstName: UserBae[i].FirstName,
                         LastName : UserBae[i].LastName,
                         email : UserBae[i].email,
                         message : "Login is successful"
